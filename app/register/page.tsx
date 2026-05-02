@@ -4,6 +4,7 @@ import authImg from "../assets/authenticationImg.png";
 import Image from "next/image";
 import { z } from "zod";
 import { FormEvent, useState } from "react";
+import axios from "axios";
 
 // ZOD schema for register
 const registerSchema = z.object({
@@ -25,7 +26,7 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const result = registerSchema.safeParse({
@@ -35,11 +36,26 @@ export default function Register() {
       password,
     });
 
-    if (!result.success) {
-      setError(result.error.message);
+    const userInfo = {
+      username,
+      fullname,
+      email,
+      password
     }
 
-    console.log(result);
+    if (!result.success) {
+      setError(result.error.issues[0].message);
+      return;
+    }
+
+    try{
+      const res = await axios.post('http://localhost:4000/customer/create', userInfo)
+      console.log(res);
+    }catch(error){
+      console.log(error);
+    }
+
+    
   };
 
   return (
